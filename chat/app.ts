@@ -2,6 +2,8 @@
 import { fromFileUrl } from "https://deno.land/std@0.132.0/path/mod.ts";
 import { readableStreamFromReader } from "https://deno.land/std@0.132.0/streams/conversion.ts";
 
+const SERV_ID = Deno.env.get("SERV_ID");
+
 const clients = new Map<number, WebSocket>();
 let clientId = 0;
 function dispatch(msg: string): void {
@@ -14,15 +16,15 @@ function wsHandler(ws: WebSocket) {
   const id = ++clientId;
   clients.set(id, ws);
   ws.onopen = () => {
-    dispatch(`Connected: [${id}]`);
+    dispatch(`Connected: [${SERV_ID}-${id}]`);
   };
   ws.onmessage = (e) => {
     console.log(`msg:${id}`, e.data);
-    dispatch(`[${id}]: ${e.data}`);
+    dispatch(`[${SERV_ID}-${id}] says: ${e.data}`);
   };
   ws.onclose = () => {
     clients.delete(id);
-    dispatch(`Closed: [${id}]`);
+    dispatch(`Closed: [${SERV_ID}-${id}]`);
   };
 }
 
@@ -32,7 +34,7 @@ async function requestHandler(req: Deno.RequestEvent) {
     //Serve with hack
     const u = new URL("./index.html", import.meta.url);
     if (u.protocol.startsWith("http")) {
-      // server launched by deno run http(s)://.../server.ts,
+      // server launched by deno run http(s)://.../app.ts,
       fetch(u.href).then(async (resp) => {
         const body = new Uint8Array(await resp.arrayBuffer());
         req.respondWith(
@@ -45,7 +47,7 @@ async function requestHandler(req: Deno.RequestEvent) {
         );
       });
     } else {
-      // server launched by deno run ./server.ts
+      // server launched by deno run ./app.ts
       const file = await Deno.open(fromFileUrl(u));
       req.respondWith(
         new Response(readableStreamFromReader(file), {
@@ -68,7 +70,7 @@ async function requestHandler(req: Deno.RequestEvent) {
 }
 
 const server = Deno.listen({ port: 8080 });
-console.log("chat server starting on :8080....");
+console.log(`Simple chat server ${SERV_ID} starting on :8080....`);
 
 for await (const conn of server) {
   (async () => {

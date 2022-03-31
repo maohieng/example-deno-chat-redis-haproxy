@@ -1,17 +1,12 @@
 version: '3.9'
 
-volumes:
-  sample-haproxy:
-
 services:
   lb:
-    image: sample-haproxy
-    build: 
-      context: ./haproxy
+    image: haproxy
     ports:
       - 6000:80
     volumes:
-      - sample-haproxy:/usr/local/etc/haproxy
+      - ./haproxy:/usr/local/etc/haproxy
     depends_on:
       - server1
       - server2

@@ -2,7 +2,7 @@ import { fromFileUrl } from "https://deno.land/std@0.132.0/path/mod.ts"
 import { readableStreamFromReader } from "https://deno.land/std@0.132.0/streams/conversion.ts"
 import { connect } from "https://deno.land/x/redis@v0.25.4/mod.ts";
 
-// See https://deno.land/std@0.132.0/examples/chat/server.ts
+// See https://deno.land/std@0.132.0/examples/chat/app.ts
 // See https://github.com/hnasr/javascript_playground/blob/master/ws-live-chat-system/app/index.mjs
 // See https://deno.land/x/redis
 
@@ -70,7 +70,7 @@ async function requestHandler(req: Deno.RequestEvent) {
         // Serve with hack
         const u = new URL("./index.html", import.meta.url)
         if (u.protocol.startsWith("http")) {
-            // server launched by deno run http(s)://.../server.ts
+            // server launched by deno run http(s)://.../app.ts
             fetch(u.href).then(async (resp) => {
                 const body = new Uint8Array(await resp.arrayBuffer());
                 req.respondWith(new Response(body, {
@@ -82,7 +82,7 @@ async function requestHandler(req: Deno.RequestEvent) {
                 );
             });
         } else {
-            // server launched by deno run ./server.ts
+            // server launched by deno run ./app.ts
             const file = await Deno.open(fromFileUrl(u));
             req.respondWith(
                 new Response(readableStreamFromReader(file), {

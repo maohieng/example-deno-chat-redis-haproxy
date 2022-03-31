@@ -1,9 +1,28 @@
 version: '3.9'
 
 services:
-  simplechat:
-    image: denochat
-    build: 
-      dockerfile: Dockerfile
+  lb:
+    image: haproxy
     ports:
-      - 7000:8080
+      - 7000:80
+    volumes:
+      - ./haproxy:/usr/local/etc/haproxy
+    depends_on:
+      - server1
+      - server2
+      - server3
+  server1:
+    image: simplechat
+    environment:
+      - SERV_ID=11111
+    restart: on-failure
+  server2:
+    image: simplechat
+    environment:
+      - SERV_ID=22222
+    restart: on-failure
+  server3:
+    image: simplechat
+    environment:
+      - SERV_ID=33333
+    restart: on-failure
