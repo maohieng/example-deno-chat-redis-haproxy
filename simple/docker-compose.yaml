@@ -1,0 +1,33 @@
+version: '3.9'
+
+volumes:
+  sample-haproxy:
+
+services:
+  lb:
+    image: sample-haproxy
+    build: 
+      context: ./haproxy
+    ports:
+      - 6000:80
+    volumes:
+      - sample-haproxy:/usr/local/etc/haproxy
+    depends_on:
+      - server1
+      - server2
+      - server3
+  server1:
+    image: mydenoapp
+    environment:
+      - SERV_ID=11111
+    restart: on-failure
+  server2:
+    image: mydenoapp
+    environment:
+      - SERV_ID=22222
+    restart: on-failure
+  server3:
+    image: mydenoapp
+    environment:
+      - SERV_ID=33333
+    restart: on-failure
